@@ -5,8 +5,8 @@ CREATE TABLE IF NOT EXISTS guilds (
 
 CREATE TABLE IF NOT EXISTS exp (
     UserID INTEGER PRIMARY KEY,
-    XP INTEGER,
-    Level INTEGER,
+    XP INTEGER DEFAULT 0,
+    Level INTEGER DEFAULT 0,
     XPLock text DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -14,4 +14,10 @@ CREATE TABLE IF NOT EXISTS mutes (
     UserID integer PRIMARY KEY,
     RoleIDs text,
     EndTime text
+);
+
+CREATE TABLE IF NOT EXISTS starboard (
+    RootMessageID integer PRIMARY KEY,
+    StarMessageID integer,
+    Stars integer DEFAULT 1
 );

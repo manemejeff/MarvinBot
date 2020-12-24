@@ -55,6 +55,24 @@ class Bot(BotBase):
 
         print('Setup complete')
 
+    def update_db(self):
+        db.multiexec("INSERT OR IGNORE INTO guilds (GuildID) VALUES (?)",
+                     ((guild.id,) for guild in self.guilds))
+
+        db.multiexec("INSERT OR IGNORE INTO exp (USerID) VALUES (?)",
+                     ((member.id,) for guild in self.guilds for member in guild.members if not member.bot))
+
+        to_remove = []
+        stored_members = db.column("SELECT UserID FROM exp")
+        for id_ in stored_members:
+            if not self.guild.get_member(id_):
+                to_remove.append(id_)
+
+        db.multiexec("DELETE FROM exp WHERE UserID = ?",
+                     ((id_,) for id_ in to_remove))
+
+        db.commit()
+
     def run(self, version):
         self.VERSION = version
         print('Running setup...')
@@ -127,6 +145,8 @@ class Bot(BotBase):
             # self.scheduler.add_job(self.rules_reminder, CronTrigger(day_of_week=0, hour=12, minute=0, second=0))
             self.scheduler.start()
 
+            self.update_db()
+
             # await self.stdout.send('Now online')
 
             # CREATING AND SENDING EMBED
@@ -189,7 +209,3 @@ class Bot(BotBase):
                     await message.channel.send('Message relayed to moderator')
             else:
                 await self.process_commands(message)
-
-
-# client = Bot()
-# client.run('1.0')
